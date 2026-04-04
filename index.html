@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lyrics + Chords Editor</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f6f6f6;
+      margin: 0;
+      padding: 30px 16px;
+      color: #222;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .editor-panel,
+    .output-panel {
+      width: 100%;
+      background: #fff;
+      border: 1px solid #cfcfcf;
+      padding: 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    h3 {
+      margin: 0 0 14px 0;
+      font-size: 18px;
+      font-weight: 600;
+      text-align: center;
+      color: #1f1f1f;
+      letter-spacing: 0.2px;
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #444;
+      text-align: center;
+    }
+
+    .top-controls {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .key-row {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    select {
+      width: 100%;
+      max-width: 420px;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid #9a9a9a;
+      background: #fff;
+      outline: none;
+      border-radius: 0;
+    }
+
+    .mode-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .mode-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid #bdbdbd;
+      background: #fafafa;
+      border-radius: 0;
+      font-size: 14px;
+    }
+
+    .keypad-wrap {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .keypad {
+      width: 420px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .key {
+      position: relative;
+      min-height: 62px;
+      border: 1px solid #999;
+      background: #fcfcfc;
+      cursor: pointer;
+      padding: 18px 8px 8px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      user-select: none;
+      border-radius: 0;
+    }
+
+    .key:hover {
+      background: #f0f0f0;
+      border-color: #777;
+    }
+
+    .roman {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #666;
+      line-height: 1;
+    }
+
+    .lyrics-input-wrap {
+      width: 100%;
+      margin-top: 4px;
+      margin-bottom: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 130px;
+      padding: 10px;
+      border: 1px solid #a0a0a0;
+      resize: vertical;
+      font-size: 14px;
+      font-family: inherit;
+      background: #fff;
+      border-radius: 0;
+      outline: none;
+    }
+
+    .editor-area {
+      width: 100%;
+      border: 1px solid #bdbdbd;
+      background: #fff;
+      padding: 12px;
+      margin-bottom: 14px;
+      border-radius: 0;
+    }
+
+    .line-pair {
+      margin-bottom: 10px;
+    }
+
+    .chord-line-input,
+    .lyrics-line {
+      width: 100%;
+      white-space: pre;
+      overflow-x: auto;
+      font-family: "Courier New", monospace;
+      font-size: 16px;
+      line-height: 1.4;
+      min-height: 24px;
+    }
+
+    .chord-line-input {
+      display: block;
+      border: none;
+      border-bottom: 1px dashed #ddd;
+      margin-bottom: 2px;
+      cursor: text;
+      color: #0f4c81;
+      font-weight: 700;
+      background: #fff;
+      outline: none;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    .chord-line-input.active {
+      background: #f8fbff;
+      outline: 1px solid #b7d7f2;
+    }
+
+    .lyrics-line {
+      color: #222;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: 1px solid #8f8f8f;
+      background: #f7f7f7;
+      color: #222;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 0;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover {
+      background: #ededed;
+      border-color: #6f6f6f;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .output-text {
+      width: 100%;
+      border: 1px solid #bdbdbd;
+      background: #fff;
+      padding: 14px;
+      font-family: "Courier New", monospace;
+      font-size: 16px;
+      white-space: pre-wrap;
+      line-height: 1.45;
+      min-height: 220px;
+      border-radius: 0;
+    }
+
+    .note {
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+      margin-top: 4px;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 560px) {
+      .keypad {
+        width: 100%;
+      }
+
+      select {
+        max-width: 100%;
+      }
+
+      .editor-panel,
+      .output-panel {
+        padding: 14px;
+      }
+
+      .key {
+        min-height: 56px;
+        font-size: 14px;
+      }
+
+      .chord-line-input,
+      .lyrics-line,
+      .output-text {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="editorPanel" class="editor-panel">
+      <h3>Lyrics + Chords Editor</h3>
+
+      <div class="top-controls">
+        <div class="section-label">All Major Keys (Natural + Sharp/Flat)</div>
+
+        <div class="key-row">
+          <select id="keySelect">
+            <option value="C">C / Am</option>
+            <option value="C#">C# / A#m</option>
+            <option value="Db">Db / Bbm</option>
+            <option value="D">D / Bm</option>
+            <option value="D#">D# / Cm</option>
+            <option value="Eb">Eb / Cm</option>
+            <option value="E">E / C#m</option>
+            <option value="F">F / Dm</option>
+            <option value="F#">F# / D#m</option>
+            <option value="Gb">Gb / Ebm</option>
+            <option value="G">G / Em</option>
+            <option value="G#">G# / Fm</option>
+            <option value="Ab">Ab / Fm</option>
+            <option value="A">A / F#m</option>
+            <option value="A#">A# / Gm</option>
+            <option value="Bb">Bb / Gm</option>
+            <option value="B">B / G#m</option>
+          </select>
+        </div>
+
+        <div class="mode-row">
+          <label class="mode-option">
+            <input type="radio" name="mode" value="maj" checked />
+            Maj
+          </label>
+          <label class="mode-option">
+            <input type="radio" name="mode" value="min" />
+            Min
+          </label>
+        </div>
+      </div>
+
+      <div class="keypad-wrap">
+        <div id="keypad" class="keypad"></div>
+      </div>
+
+      <div class="lyrics-input-wrap">
+        <div class="section-label">Paste Lyrics</div>
+        <textarea id="lyricsInput" placeholder="Paste lyrics here... Each line will become a lyrics line. Chord lines are added above each lyrics line."></textarea>
+        <div class="note">Click “Load Lyrics” after pasting. Then click any chord line and use the keypad.</div>
+        <div class="controls" style="margin-top: 8px;">
+          <button id="loadLyricsBtn">Load Lyrics</button>
+        </div>
+      </div>
+
+      <div class="editor-area" id="editorArea"></div>
+
+      <div class="controls" id="mainControls">
+        <button id="okBtn">OK</button>
+        <button id="numberBtn">Number Only</button>
+        <button id="clearBtn">Clear</button>
+      </div>
+    </div>
+
+    <div id="outputPanel" class="output-panel hidden">
+      <h3>Preview</h3>
+      <div id="outputText" class="output-text"></div>
+      <div class="controls" style="margin-top: 14px;">
+        <button id="editBtn">Edit</button>
+        <button id="pdfBtn">Export as PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const layoutMap = {
+      0: "r1c2",
+      1: "r2c1",
+      2: "r2c3",
+      3: "r1c1",
+      4: "r1c3",
+      5: "r2c2",
+      6: "r3c2",
+      7: "r3c1",
+      8: "r3c3"
+    };
+
+    const majRomans = {
+      r1c2: "I",
+      r2c1: "ii",
+      r2c3: "iii",
+      r1c1: "IV",
+      r1c3: "V",
+      r2c2: "vi",
+      r3c2: "vii",
+      r3c1: "iii°",
+      r3c3: "IV°"
+    };
+
+    const minRomans = {
+      r1c2: "III",
+      r2c1: "iv",
+      r2c3: "v",
+      r1c1: "VI",
+      r1c3: "VII",
+      r2c2: "i",
+      r3c2: "ii",
+      r3c1: "v°",
+      r3c3: "vi°"
+    };
+
+    const keyDefinitions = {
+      "C":  ["C","Dm","Em","F","G","Am","Bdim","Edim","F#dim"],
+      "C#": ["C#","D#m","Fm","F#","G#","A#m","Cdim","Fdim","Gdim"],
+      "Db": ["Db","Ebm","Fm","Gb","Ab","Bbm","Cdim","Fdim","Gdim"],
+      "D":  ["D","Em","F#m","G","A","Bm","C#dim","F#dim","G#dim"],
+      "D#": ["D#","Fm","Gm","G#","A#","Cm","Ddim","Gdim","Adim"],
+      "Eb": ["Eb","Fm","Gm","Ab","Bb","Cm","Ddim","Gdim","Adim"],
+      "E":  ["E","F#m","G#m","A","B","C#m","D#dim","G#dim","A#dim"],
+      "F":  ["F","Gm","Am","Bb","C","Dm","Edim","Adim","Bdim"],
+      "F#": ["F#","G#m","A#m","B","C#","D#m","Fdim","A#dim","Cdim"],
+      "Gb": ["Gb","Abm","Bbm","Cb","Db","Ebm","Fdim","Bbdim","Cdim"],
+      "G":  ["G","Am","Bm","C","D","Em","F#dim","Bdim","C#dim"],
+      "G#": ["G#","A#m","Cm","C#","D#","Fm","Gdim","Cdim","Ddim"],
+      "Ab": ["Ab","Bbm","Cm","Db","Eb","Fm","Gdim","Cdim","Ddim"],
+      "A":  ["A","Bm","C#m","D","E","F#m","G#dim","C#dim","D#dim"],
+      "A#": ["A#","Cm","Dm","D#","F","Gm","Adim","Ddim","Edim"],
+      "Bb": ["Bb","Cm","Dm","Eb","F","Gm","Adim","Ddim","Edim"],
+      "B":  ["B","C#m","D#m","E","F#","G#m","A#dim","D#dim","Fdim"]
+    };
+
+    const keySelect = document.getElementById("keySelect");
+    const keypad = document.getElementById("keypad");
+    const editorArea = document.getElementById("editorArea");
+    const lyricsInput = document.getElementById("lyricsInput");
+    const loadLyricsBtn = document.getElementById("loadLyricsBtn");
+    const okBtn = document.getElementById("okBtn");
+    const numberBtn = document.getElementById("numberBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const editorPanel = document.getElementById("editorPanel");
+    const outputPanel = document.getElementById("outputPanel");
+    const outputText = document.getElementById("outputText");
+    const editBtn = document.getElementById("editBtn");
+    const pdfBtn = document.getElementById("pdfBtn");
+
+    let currentMode = "maj";
+    let activeChordInput = null;
+    let showingNumbersOnly = false;
+
+    function getCurrentRomans() {
+      return currentMode === "maj" ? majRomans : minRomans;
+    }
+
+    function getCurrentKeyChords() {
+      return keyDefinitions[keySelect.value] || keyDefinitions["C"];
+    }
+
+    function renderKeypad() {
+      keypad.innerHTML = "";
+      const chords = getCurrentKeyChords();
+      const romans = getCurrentRomans();
+
+      const cells = {
+        r1c1: null, r1c2: null, r1c3: null,
+        r2c1: null, r2c2: null, r2c3: null,
+        r3c1: null, r3c2: null, r3c3: null
+      };
+
+      chords.forEach((chord, i) => {
+        const pos = layoutMap[i];
+        cells[pos] = { chord, roman: romans[pos] || "" };
+      });
+
+      const ordered = [
+        "r1c1","r1c2","r1c3",
+        "r2c1","r2c2","r2c3",
+        "r3c1","r3c2","r3c3"
+      ];
+
+      ordered.forEach(pos => {
+        const item = cells[pos];
+        const btn = document.createElement("div");
+        btn.className = "key";
+
+        if (item) {
+          btn.innerHTML = `
+            <div class="roman">${item.roman}</div>
+            <div>${item.chord}</div>
+          `;
+          btn.addEventListener("click", () => insertChord(item.chord, item.roman));
+        }
+
+        keypad.appendChild(btn);
+      });
+    }
+
+    function loadLyrics() {
+      const lines = lyricsInput.value.replace(/\r/g, "").split("\n");
+      editorArea.innerHTML = "";
+      activeChordInput = null;
+
+      lines.forEach((line) => {
+        const pair = document.createElement("div");
+        pair.className = "line-pair";
+
+        const chordInput = document.createElement("input");
+        chordInput.type = "text";
+        chordInput.className = "chord-line-input";
+        chordInput.spellcheck = false;
+        chordInput.value = " ".repeat(Math.max(line.length + 10, 50));
+
+        chordInput.addEventListener("focus", () => {
+          document.querySelectorAll(".chord-line-input").forEach(el => el.classList.remove("active"));
+          chordInput.classList.add("active");
+          activeChordInput = chordInput;
+        });
+
+        chordInput.addEventListener("click", () => {
+          document.querySelectorAll(".chord-line-input").forEach(el => el.classList.remove("active"));
+          chordInput.classList.add("active");
+          activeChordInput = chordInput;
+        });
+
+        const lyricsLine = document.createElement("div");
+        lyricsLine.className = "lyrics-line";
+        lyricsLine.textContent = line;
+
+        pair.appendChild(chordInput);
+        pair.appendChild(lyricsLine);
+        editorArea.appendChild(pair);
+      });
+    }
+
+    function clearActiveChordLine() {
+      if (!activeChordInput) {
+        alert("Please click on a chord line first.");
+        return;
+      }
+
+      const lineLength = activeChordInput.value.length;
+      activeChordInput.value = " ".repeat(lineLength);
+      activeChordInput.focus();
+      activeChordInput.setSelectionRange(0, 0);
+    }
+
+    function insertChord(chord, roman) {
+      if (!activeChordInput) {
+        alert("Please click on a chord line first.");
+        return;
+      }
+
+      const insertText = showingNumbersOnly ? roman : chord;
+      let text = activeChordInput.value;
+      let pos = activeChordInput.selectionStart;
+
+      if (pos == null) pos = 0;
+
+      if (text.length < pos + insertText.length) {
+        text = text.padEnd(pos + insertText.length, " ");
+      }
+
+      for (let i = 0; i < insertText.length; i++) {
+        if (text[pos + i] !== " ") {
+          alert("Chord/number cannot overlap existing text.");
+          return;
+        }
+      }
+
+      const chars = text.split("");
+      for (let i = 0; i < insertText.length; i++) {
+        chars[pos + i] = insertText[i];
+      }
+
+      activeChordInput.value = chars.join("");
+
+      const newPos = pos + insertText.length + 1;
+      activeChordInput.focus();
+      activeChordInput.setSelectionRange(newPos, newPos);
+    }
+
+    function chordToRoman(chord) {
+      const chords = getCurrentKeyChords();
+      const romans = getCurrentRomans();
+
+      for (let i = 0; i < chords.length; i++) {
+        if (chords[i] === chord) {
+          const pos = layoutMap[i];
+          return romans[pos] || chord;
+        }
+      }
+      return chord;
+    }
+
+    function convertChordLineToNumbers(line) {
+      const chords = getCurrentKeyChords().slice().sort((a, b) => b.length - a.length);
+      let result = line;
+
+      chords.forEach(ch => {
+        const roman = chordToRoman(ch);
+        const escaped = ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        result = result.replace(new RegExp(escaped, "g"), roman);
+      });
+
+      return result;
+    }
+
+    function buildOutput(numbersOnly = false) {
+      const pairs = Array.from(document.querySelectorAll(".line-pair"));
+      let finalText = "";
+
+      pairs.forEach(pair => {
+        const chordLine = pair.querySelector(".chord-line-input").value;
+        const lyricsLine = pair.querySelector(".lyrics-line").textContent;
+
+        const outChord = numbersOnly ? convertChordLineToNumbers(chordLine) : chordLine;
+        finalText += outChord.replace(/\s+$/, "") + "\n";
+        finalText += lyricsLine + "\n";
+      });
+
+      return finalText.trimEnd();
+    }
+
+    function showPreview(numbersOnly = false) {
+      outputText.textContent = buildOutput(numbersOnly);
+      editorPanel.classList.add("hidden");
+      outputPanel.classList.remove("hidden");
+    }
+
+    function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: "p",
+        unit: "pt",
+        format: "a4"
+      });
+
+      const text = outputText.textContent || "";
+      const lines = doc.splitTextToSize(text, 520);
+
+      doc.setFont("courier", "normal");
+      doc.setFontSize(11);
+      doc.text(lines, 40, 50);
+      doc.save("lyrics-chords-sheet.pdf");
+    }
+
+    keySelect.addEventListener("change", renderKeypad);
+
+    document.querySelectorAll('input[name="mode"]').forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        currentMode = e.target.value;
+        renderKeypad();
+      });
+    });
+
+    loadLyricsBtn.addEventListener("click", loadLyrics);
+
+    okBtn.addEventListener("click", () => {
+      showingNumbersOnly = false;
+      showPreview(false);
+    });
+
+    numberBtn.addEventListener("click", () => {
+      showingNumbersOnly = true;
+      showPreview(true);
+    });
+
+    editBtn.addEventListener("click", () => {
+      outputPanel.classList.add("hidden");
+      editorPanel.classList.remove("hidden");
+    });
+
+    pdfBtn.addEventListener("click", exportPDF);
+    clearBtn.addEventListener("click", clearActiveChordLine);
+
+    renderKeypad();
+  </script>
+</body>
+</html>

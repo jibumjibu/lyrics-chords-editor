@@ -23,6 +23,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      position: relative;
     }
 
     .editor-panel,
@@ -49,95 +50,6 @@
       margin-bottom: 8px;
       color: #444;
       text-align: center;
-    }
-
-    .top-controls {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .key-row {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-    }
-
-    select {
-      width: 100%;
-      max-width: 420px;
-      padding: 10px 12px;
-      font-size: 14px;
-      border: 1px solid #9a9a9a;
-      background: #fff;
-      outline: none;
-      border-radius: 0;
-    }
-
-    .mode-row {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .mode-option {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border: 1px solid #bdbdbd;
-      background: #fafafa;
-      border-radius: 0;
-      font-size: 14px;
-    }
-
-    .keypad-wrap {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      margin-bottom: 18px;
-    }
-
-    .keypad {
-      width: 300px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .key {
-      position: relative;
-      min-height: 62px;
-      border: 1px solid #999;
-      background: #fcfcfc;
-      cursor: pointer;
-      padding: 18px 8px 8px;
-      text-align: center;
-      font-size: 16px;
-      font-weight: 600;
-      transition: background 0.15s ease, border-color 0.15s ease;
-      user-select: none;
-      border-radius: 0;
-    }
-
-    .key:hover {
-      background: #f0f0f0;
-      border-color: #777;
-    }
-
-    .roman {
-      position: absolute;
-      top: 4px;
-      left: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      color: #666;
-      line-height: 1;
     }
 
     .lyrics-input-wrap {
@@ -170,6 +82,7 @@
 
     .line-pair {
       margin-bottom: 10px;
+      position: relative;
     }
 
     .chord-line-input,
@@ -231,6 +144,16 @@
       border-color: #6f6f6f;
     }
 
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 1px solid #9a9a9a;
+      background: #fff;
+      outline: none;
+      border-radius: 0;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -256,23 +179,108 @@
       margin-bottom: 10px;
     }
 
+    /* Floating Popup */
+    .keypad-popup {
+      position: absolute;
+      width: 320px;
+      background: #fff;
+      border: 1px solid #bcbcbc;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      padding: 10px;
+      z-index: 9999;
+      border-radius: 0;
+    }
+
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .popup-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .close-popup {
+      border: 1px solid #8f8f8f;
+      background: #f7f7f7;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .popup-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .mode-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .mode-option {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 8px;
+      border: 1px solid #bdbdbd;
+      background: #fafafa;
+      font-size: 13px;
+      border-radius: 0;
+    }
+
+    .keypad {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .key {
+      position: relative;
+      min-height: 56px;
+      border: 1px solid #999;
+      background: #fcfcfc;
+      cursor: pointer;
+      padding: 16px 6px 6px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      user-select: none;
+      border-radius: 0;
+    }
+
+    .key:hover {
+      background: #f0f0f0;
+      border-color: #777;
+    }
+
+    .roman {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #666;
+      line-height: 1;
+    }
+
     @media (max-width: 560px) {
-      .keypad {
-        width: 100%;
-      }
-
-      select {
-        max-width: 100%;
-      }
-
       .editor-panel,
       .output-panel {
         padding: 14px;
-      }
-
-      .key {
-        min-height: 56px;
-        font-size: 14px;
       }
 
       .chord-line-input,
@@ -280,57 +288,19 @@
       .output-text {
         font-size: 14px;
       }
+
+      .keypad-popup {
+        width: min(92vw, 320px);
+      }
     }
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="app" id="app">
     <div id="editorPanel" class="editor-panel">
       <h3>Song Sheet</h3>
 
-      <div class="top-controls">
-        <div class="section-label"></div>
-
-        <div class="key-row">
-          <select id="keySelect">
-            <option value="C">C / Am</option>
-            <option value="C#">C# / A#m</option>
-            <option value="Db">Db / Bbm</option>
-            <option value="D">D / Bm</option>
-            <option value="D#">D# / Cm</option>
-            <option value="Eb">Eb / Cm</option>
-            <option value="E">E / C#m</option>
-            <option value="F">F / Dm</option>
-            <option value="F#">F# / D#m</option>
-            <option value="Gb">Gb / Ebm</option>
-            <option value="G">G / Em</option>
-            <option value="G#">G# / Fm</option>
-            <option value="Ab">Ab / Fm</option>
-            <option value="A">A / F#m</option>
-            <option value="A#">A# / Gm</option>
-            <option value="Bb">Bb / Gm</option>
-            <option value="B">B / G#m</option>
-          </select>
-        </div>
-
-        <div class="mode-row">
-          <label class="mode-option">
-            <input type="radio" name="mode" value="maj" checked />
-            Maj
-          </label>
-          <label class="mode-option">
-            <input type="radio" name="mode" value="min" />
-            Min
-          </label>
-        </div>
-      </div>
-
-      <div class="keypad-wrap">
-        <div id="keypad" class="keypad"></div>
-      </div>
-
       <div class="lyrics-input-wrap">
-        <div class="section-label"></div>
         <textarea id="lyricsInput" placeholder="Paste lyrics here"></textarea>
         <div class="note"></div>
         <div class="controls" style="margin-top: 8px;">
@@ -354,6 +324,49 @@
         <button id="editBtn">Edit</button>
         <button id="pdfBtn">Export as PDF</button>
       </div>
+    </div>
+
+    <!-- Floating Popup Keypad -->
+    <div id="keypadPopup" class="keypad-popup hidden">
+      <div class="popup-header">
+        <div class="popup-title">Chord Keypad</div>
+        <button id="closePopupBtn" class="close-popup">×</button>
+      </div>
+
+      <div class="popup-controls">
+        <select id="keySelect">
+          <option value="C">C / Am</option>
+          <option value="C#">C# / A#m</option>
+          <option value="Db">Db / Bbm</option>
+          <option value="D">D / Bm</option>
+          <option value="D#">D# / Cm</option>
+          <option value="Eb">Eb / Cm</option>
+          <option value="E">E / C#m</option>
+          <option value="F">F / Dm</option>
+          <option value="F#">F# / D#m</option>
+          <option value="Gb">Gb / Ebm</option>
+          <option value="G">G / Em</option>
+          <option value="G#">G# / Fm</option>
+          <option value="Ab">Ab / Fm</option>
+          <option value="A">A / F#m</option>
+          <option value="A#">A# / Gm</option>
+          <option value="Bb">Bb / Gm</option>
+          <option value="B">B / G#m</option>
+        </select>
+
+        <div class="mode-row">
+          <label class="mode-option">
+            <input type="radio" name="mode" value="maj" checked />
+            Maj
+          </label>
+          <label class="mode-option">
+            <input type="radio" name="mode" value="min" />
+            Min
+          </label>
+        </div>
+      </div>
+
+      <div id="keypad" class="keypad"></div>
     </div>
   </div>
 
@@ -414,8 +427,11 @@
       "B":  ["B","C#m","D#m","E","F#","G#m","A#dim","D#dim","Fdim"]
     };
 
+    const app = document.getElementById("app");
     const keySelect = document.getElementById("keySelect");
     const keypad = document.getElementById("keypad");
+    const keypadPopup = document.getElementById("keypadPopup");
+    const closePopupBtn = document.getElementById("closePopupBtn");
     const editorArea = document.getElementById("editorArea");
     const lyricsInput = document.getElementById("lyricsInput");
     const loadLyricsBtn = document.getElementById("loadLyricsBtn");
@@ -472,17 +488,59 @@
             <div class="roman">${item.roman}</div>
             <div>${item.chord}</div>
           `;
-          btn.addEventListener("click", () => insertChord(item.chord, item.roman));
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            insertChord(item.chord, item.roman);
+          });
         }
 
         keypad.appendChild(btn);
       });
     }
 
+    function openPopupNearInput(inputEl) {
+      keypadPopup.classList.remove("hidden");
+
+      const inputRect = inputEl.getBoundingClientRect();
+      const appRect = app.getBoundingClientRect();
+
+      let left = inputRect.right - appRect.left - 320;
+      let top = inputRect.bottom - appRect.top + 6;
+
+      if (window.innerWidth <= 560) {
+        left = (appRect.width - Math.min(window.innerWidth * 0.92, 320)) / 2;
+      } else {
+        if (left < 0) left = 0;
+        if (left + 320 > appRect.width) left = appRect.width - 320;
+      }
+
+      if (top + 360 > window.innerHeight + window.scrollY) {
+        const aboveTop = inputRect.top - appRect.top - 320;
+        if (aboveTop > 0) top = aboveTop;
+      }
+
+      keypadPopup.style.left = `${Math.max(0, left)}px`;
+      keypadPopup.style.top = `${Math.max(0, top)}px`;
+
+      renderKeypad();
+    }
+
+    function closePopup() {
+      keypadPopup.classList.add("hidden");
+    }
+
+    function setActiveChordInput(chordInput) {
+      document.querySelectorAll(".chord-line-input").forEach(el => el.classList.remove("active"));
+      chordInput.classList.add("active");
+      activeChordInput = chordInput;
+      openPopupNearInput(chordInput);
+    }
+
     function loadLyrics() {
       const lines = lyricsInput.value.replace(/\r/g, "").split("\n");
       editorArea.innerHTML = "";
       activeChordInput = null;
+      closePopup();
 
       lines.forEach((line) => {
         const pair = document.createElement("div");
@@ -495,15 +553,11 @@
         chordInput.value = " ".repeat(Math.max(line.length + 10, 50));
 
         chordInput.addEventListener("focus", () => {
-          document.querySelectorAll(".chord-line-input").forEach(el => el.classList.remove("active"));
-          chordInput.classList.add("active");
-          activeChordInput = chordInput;
+          setActiveChordInput(chordInput);
         });
 
         chordInput.addEventListener("click", () => {
-          document.querySelectorAll(".chord-line-input").forEach(el => el.classList.remove("active"));
-          chordInput.classList.add("active");
-          activeChordInput = chordInput;
+          setActiveChordInput(chordInput);
         });
 
         const lyricsLine = document.createElement("div");
@@ -526,6 +580,7 @@
       activeChordInput.value = " ".repeat(lineLength);
       activeChordInput.focus();
       activeChordInput.setSelectionRange(0, 0);
+      openPopupNearInput(activeChordInput);
     }
 
     function insertChord(chord, roman) {
@@ -561,6 +616,7 @@
       const newPos = pos + insertText.length + 1;
       activeChordInput.focus();
       activeChordInput.setSelectionRange(newPos, newPos);
+      openPopupNearInput(activeChordInput);
     }
 
     function chordToRoman(chord) {
@@ -609,6 +665,7 @@
       outputText.textContent = buildOutput(numbersOnly);
       editorPanel.classList.add("hidden");
       outputPanel.classList.remove("hidden");
+      closePopup();
     }
 
     function exportPDF() {
@@ -628,10 +685,14 @@
       doc.save("lyrics-chords-sheet.pdf");
     }
 
-    keySelect.addEventListener("change", renderKeypad);
+    keySelect.addEventListener("change", (e) => {
+      e.stopPropagation();
+      renderKeypad();
+    });
 
     document.querySelectorAll('input[name="mode"]').forEach(radio => {
       radio.addEventListener("change", (e) => {
+        e.stopPropagation();
         currentMode = e.target.value;
         renderKeypad();
       });
@@ -656,6 +717,21 @@
 
     pdfBtn.addEventListener("click", exportPDF);
     clearBtn.addEventListener("click", clearActiveChordLine);
+
+    closePopupBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closePopup();
+    });
+
+    keypadPopup.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!keypadPopup.contains(e.target) && !e.target.classList.contains("chord-line-input")) {
+        closePopup();
+      }
+    });
 
     renderKeypad();
   </script>

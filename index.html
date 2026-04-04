@@ -104,7 +104,7 @@
     }
 
     .keypad {
-      width: 420px;
+      width: 300px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
@@ -286,10 +286,10 @@
 <body>
   <div class="app">
     <div id="editorPanel" class="editor-panel">
-      <h3>Lyrics + Chords Editor</h3>
+      <h3>Song Sheet</h3>
 
       <div class="top-controls">
-        <div class="section-label">All Major Keys (Natural + Sharp/Flat)</div>
+        <div class="section-label"></div>
 
         <div class="key-row">
           <select id="keySelect">
@@ -330,7 +330,7 @@
       </div>
 
       <div class="lyrics-input-wrap">
-        <div class="section-label">Paste Lyrics</div>
+        <div class="section-label"></div>
         <textarea id="lyricsInput" placeholder="Paste lyrics here"></textarea>
         <div class="note"></div>
         <div class="controls" style="margin-top: 8px;">

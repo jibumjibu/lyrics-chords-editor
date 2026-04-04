@@ -182,7 +182,7 @@
     /* Floating Popup */
     .keypad-popup {
       position: absolute;
-      width: 250px;
+      width: 180px;
       background: #fff;
       border: 1px solid #bcbcbc;
       box-shadow: 0 8px 24px rgba(0,0,0,0.12);
@@ -241,7 +241,7 @@
     }
 
     .keypad {
-      width: 100%;
+      width: 70%;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 3px;
@@ -249,7 +249,7 @@
 
     .key {
       position: relative;
-      min-height: 56px;
+      min-height: 43px;
       border: 1px solid #999;
       background: #fcfcfc;
       cursor: pointer;
@@ -293,6 +293,10 @@
         width: min(92vw, 320px);
       }
     }
+
+    #outputPanel {
+      position: relative;
+    }
   </style>
 </head>
 <body>
@@ -324,12 +328,13 @@
         <button id="editBtn">Edit</button>
         <button id="pdfBtn">Export as PDF</button>
       </div>
+      <div id="songKey" style="position: absolute; top: 14px; right: 14px; font-size: 14px; font-weight: 600; color: #1f1f1f;"></div>
     </div>
 
     <!-- Floating Popup Keypad -->
     <div id="keypadPopup" class="keypad-popup hidden">
       <div class="popup-header">
-        <div class="popup-title">Chord Keypad</div>
+        <div class="popup-title"></div>
         <button id="closePopupBtn" class="close-popup">×</button>
       </div>
 
@@ -443,6 +448,7 @@
     const outputText = document.getElementById("outputText");
     const editBtn = document.getElementById("editBtn");
     const pdfBtn = document.getElementById("pdfBtn");
+    const songKeyDiv = document.getElementById("songKey");
 
     let currentMode = "maj";
     let activeChordInput = null;
@@ -680,7 +686,7 @@
       const lines = doc.splitTextToSize(text, 520);
 
       doc.setFont("courier", "normal");
-      doc.setFontSize(11);
+      doc.setFontSize(14);
       doc.text(lines, 40, 50);
       doc.save("lyrics-chords-sheet.pdf");
     }
@@ -702,6 +708,10 @@
 
     okBtn.addEventListener("click", () => {
       showingNumbersOnly = false;
+
+      // Show selected key
+      songKeyDiv.textContent = "Key: " + keySelect.value;
+
       showPreview(false);
     });
 

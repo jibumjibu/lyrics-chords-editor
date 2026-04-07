@@ -285,7 +285,6 @@
 
       <div class="controls" id="mainControls">
         <button id="okBtn">OK</button>
-        <button id="numberBtn">Number Only</button>
         <button id="clearBtn">Clear</button>
       </div>
     </div>
@@ -684,11 +683,6 @@
     okBtn.addEventListener("click", () => {
       showingNumbersOnly = false;
       showPreview(false);
-    });
-
-    numberBtn.addEventListener("click", () => {
-      showingNumbersOnly = true;
-      showPreview(true);
     });
 
     editBtn.addEventListener("click", () => {

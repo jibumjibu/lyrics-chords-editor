@@ -44,14 +44,6 @@
       letter-spacing: 0.2px;
     }
 
-    .section-label {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #444;
-      text-align: center;
-    }
-
     .lyrics-input-wrap {
       width: 100%;
       margin-top: 4px;
@@ -171,14 +163,6 @@
       border-radius: 0;
     }
 
-    .note {
-      font-size: 12px;
-      color: #666;
-      text-align: center;
-      margin-top: 4px;
-      margin-bottom: 10px;
-    }
-
     /* Floating Popup */
     .keypad-popup {
       position: absolute;
@@ -189,30 +173,6 @@
       padding: 10px;
       z-index: 9999;
       border-radius: 0;
-    }
-
-    .popup-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      gap: 8px;
-    }
-
-    .popup-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .close-popup {
-      border: 1px solid #8f8f8f;
-      background: #f7f7f7;
-      width: 28px;
-      height: 28px;
-      padding: 0;
-      font-size: 16px;
-      line-height: 1;
     }
 
     .popup-controls {
@@ -241,7 +201,7 @@
     }
 
     .keypad {
-      width: 70%;
+      width: 100%;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 3px;
@@ -253,13 +213,14 @@
       border: 1px solid #999;
       background: #fcfcfc;
       cursor: pointer;
-      padding: 16px 6px 6px;
+      padding: 16px 4px 4px;
       text-align: center;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 600;
       transition: background 0.15s ease, border-color 0.15s ease;
       user-select: none;
       border-radius: 0;
+      overflow: hidden;
     }
 
     .key:hover {
@@ -270,8 +231,8 @@
     .roman {
       position: absolute;
       top: 4px;
-      left: 6px;
-      font-size: 10px;
+      left: 4px;
+      font-size: 9px;
       font-weight: 700;
       color: #666;
       line-height: 1;
@@ -290,12 +251,21 @@
       }
 
       .keypad-popup {
-        width: min(92vw, 320px);
+        width: min(92vw, 260px);
       }
     }
 
     #outputPanel {
       position: relative;
+    }
+
+    #songKey {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f1f1f;
     }
   </style>
 </head>
@@ -306,7 +276,6 @@
 
       <div class="lyrics-input-wrap">
         <textarea id="lyricsInput" placeholder="Paste lyrics here"></textarea>
-        <div class="note"></div>
         <div class="controls" style="margin-top: 8px;">
           <button id="loadLyricsBtn">Load Lyrics</button>
         </div>
@@ -323,21 +292,18 @@
 
     <div id="outputPanel" class="output-panel hidden">
       <h3>Preview</h3>
+      <div id="songKey"></div>
       <div id="outputText" class="output-text"></div>
       <div class="controls" style="margin-top: 14px;">
         <button id="editBtn">Edit</button>
+        <button id="showChordsBtn">Show Chords</button>
+        <button id="showNumbersBtn">Show Numbers</button>
         <button id="pdfBtn">Export as PDF</button>
       </div>
-      <div id="songKey" style="position: absolute; top: 14px; right: 14px; font-size: 14px; font-weight: 600; color: #1f1f1f;"></div>
     </div>
 
     <!-- Floating Popup Keypad -->
     <div id="keypadPopup" class="keypad-popup hidden">
-      <div class="popup-header">
-        <div class="popup-title"></div>
-        <button id="closePopupBtn" class="close-popup">×</button>
-      </div>
-
       <div class="popup-controls">
         <select id="keySelect">
           <option value="C">C / Am</option>
@@ -436,7 +402,6 @@
     const keySelect = document.getElementById("keySelect");
     const keypad = document.getElementById("keypad");
     const keypadPopup = document.getElementById("keypadPopup");
-    const closePopupBtn = document.getElementById("closePopupBtn");
     const editorArea = document.getElementById("editorArea");
     const lyricsInput = document.getElementById("lyricsInput");
     const loadLyricsBtn = document.getElementById("loadLyricsBtn");
@@ -447,6 +412,8 @@
     const outputPanel = document.getElementById("outputPanel");
     const outputText = document.getElementById("outputText");
     const editBtn = document.getElementById("editBtn");
+    const showChordsBtn = document.getElementById("showChordsBtn");
+    const showNumbersBtn = document.getElementById("showNumbersBtn");
     const pdfBtn = document.getElementById("pdfBtn");
     const songKeyDiv = document.getElementById("songKey");
 
@@ -510,19 +477,15 @@
       const inputRect = inputEl.getBoundingClientRect();
       const appRect = app.getBoundingClientRect();
 
-      let left = inputRect.right - appRect.left - 320;
+      let popupWidth = window.innerWidth <= 560 ? Math.min(window.innerWidth * 0.92, 260) : 180;
+      let left = inputRect.right - appRect.left - popupWidth;
       let top = inputRect.bottom - appRect.top + 6;
 
       if (window.innerWidth <= 560) {
-        left = (appRect.width - Math.min(window.innerWidth * 0.92, 320)) / 2;
+        left = (appRect.width - popupWidth) / 2;
       } else {
         if (left < 0) left = 0;
-        if (left + 320 > appRect.width) left = appRect.width - 320;
-      }
-
-      if (top + 360 > window.innerHeight + window.scrollY) {
-        const aboveTop = inputRect.top - appRect.top - 320;
-        if (aboveTop > 0) top = aboveTop;
+        if (left + popupWidth > appRect.width) left = appRect.width - popupWidth;
       }
 
       keypadPopup.style.left = `${Math.max(0, left)}px`;
@@ -595,7 +558,9 @@
         return;
       }
 
-      const insertText = showingNumbersOnly ? roman : chord;
+      // IMPORTANT: always store alphabet chords in editor
+      const insertText = chord;
+
       let text = activeChordInput.value;
       let pos = activeChordInput.selectionStart;
 
@@ -659,8 +624,11 @@
         const chordLine = pair.querySelector(".chord-line-input").value;
         const lyricsLine = pair.querySelector(".lyrics-line").textContent;
 
-        const outChord = numbersOnly ? convertChordLineToNumbers(chordLine) : chordLine;
-        finalText += outChord.replace(/\s+$/, "") + "\n";
+        const displayChordLine = numbersOnly
+          ? convertChordLineToNumbers(chordLine)
+          : chordLine;
+
+        finalText += displayChordLine.replace(/\s+$/, "") + "\n";
         finalText += lyricsLine + "\n";
       });
 
@@ -668,7 +636,14 @@
     }
 
     function showPreview(numbersOnly = false) {
+      showingNumbersOnly = numbersOnly;
       outputText.textContent = buildOutput(numbersOnly);
+      songKeyDiv.textContent = "Key: " + keySelect.value;
+
+      // Toggle preview switch buttons
+      showNumbersBtn.style.display = numbersOnly ? "none" : "inline-block";
+      showChordsBtn.style.display = numbersOnly ? "inline-block" : "none";
+
       editorPanel.classList.add("hidden");
       outputPanel.classList.remove("hidden");
       closePopup();
@@ -708,10 +683,6 @@
 
     okBtn.addEventListener("click", () => {
       showingNumbersOnly = false;
-
-      // Show selected key
-      songKeyDiv.textContent = "Key: " + keySelect.value;
-
       showPreview(false);
     });
 
@@ -725,13 +696,18 @@
       editorPanel.classList.remove("hidden");
     });
 
+    showChordsBtn.addEventListener("click", () => {
+      showingNumbersOnly = false;
+      showPreview(false);
+    });
+
+    showNumbersBtn.addEventListener("click", () => {
+      showingNumbersOnly = true;
+      showPreview(true);
+    });
+
     pdfBtn.addEventListener("click", exportPDF);
     clearBtn.addEventListener("click", clearActiveChordLine);
-
-    closePopupBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      closePopup();
-    });
 
     keypadPopup.addEventListener("click", (e) => {
       e.stopPropagation();
